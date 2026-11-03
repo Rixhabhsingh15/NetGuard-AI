@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NetGuard AI | Intelligent Network Monitoring</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">◈</div>
+            <div>
+                <h2>NetGuard<span>AI</span></h2>
+                <small>Network Intelligence</small>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/" class="nav-item active">◉ &nbsp; Overview</a>
+            <a href="#analytics" class="nav-item">⌁ &nbsp; Network Monitor</a>
+            <a href="#diagnostics" class="nav-item">⚡ &nbsp; AI Diagnostics</a>
+            <a href="#events" class="nav-item">◫ &nbsp; Fault History</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="system-status">
+                <div class="status-dot"></div>
+                <div>
+                    <strong>System Online</strong>
+                    <small>AI Engine Active</small>
+                </div>
+            </div>
+            <div class="version">NETGUARD AI v1.0</div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- HEADER -->
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">NETWORK OPERATIONS CENTER</p>
+                <h1>Intelligent Network <span>Command Center</span></h1>
+            </div>
+
+            <div class="top-actions">
+                <div class="live-indicator">
+                    <span></span> NETWORK DASHBOARD
+                </div>
+                <div class="time" id="clock">--:--:--</div>
+            </div>
+        </header>
+<!-- LIVE MONITORING CONTROL -->
+<section class="panel" style="margin-bottom:20px;">
+    <div class="panel-header">
+        <div>
+            <span class="label">GNS3 LIVE CONNECTION</span>
+            <h3>Live Network Monitoring</h3>
+        </div>
+
+        <span id="liveStatus"
+              style="font-weight:700;color:#d69e36;">
+            STOPPED
+        </span>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <button type="button"
+                class="detect-btn"
+                id="startLiveBtn"
+                onclick="startLiveMonitoring()">
+            START MONITORING
+        </button>
+
+        <button type="button"
+                class="detect-btn"
+                id="stopLiveBtn"
+                onclick="stopLiveMonitoring()"
+                style="opacity:0.7;">
+            STOP MONITORING
+        </button>
+    </div>
+
+    <div style="display:flex;gap:35px;flex-wrap:wrap;margin-top:20px;">
+        <div>
+            <small>LIVE JITTER</small>
+            <h2><span id="liveJitter">--</span> ms</h2>
+        </div>
+        
+<div id="liveFaultBox"
+     style="margin-top:22px;padding:16px;border-radius:10px;
+            background:rgba(34,197,94,0.08);
+            border:1px solid rgba(34,197,94,0.25);">
+
+    <div style="display:flex;gap:10px;align-items:center;">
+        <strong>LIVE FAULT DETECTION:</strong>
+        <span id="liveFault"
+              style="font-weight:800;color:#22c55e;">
+            WAITING
+        </span>
+    </div>
+
+    <div style="margin-top:12px;">
+        <small>AI TROUBLESHOOTING RECOMMENDATION</small>
+        <p id="liveRecommendation" style="margin-top:6px;">
+            Start monitoring to detect network faults.
+        </p>
+    </div>
+</div>
+
+
+        <div>
+            <small>SUCCESSFUL REPLIES</small>
+            <h2 id="liveReplies">--</h2>
+        </div>
+
+        <div>
+            <small>LAST UPDATED</small>
+            <h2 id="liveUpdated" style="font-size:15px;">--</h2>
+        </div>
+    </div>
+</section>
+        <!-- NETWORK OVERVIEW -->
+        <section class="overview-grid">
+
+            <div class="hero-card">
+                <div class="hero-top">
+                    <div>
+                        <span class="label">CURRENT NETWORK STATE</span>
+                        <h2 id="networkState">READY</h2>
+                    </div>
+
+                    <div class="network-ring">
+                        <div class="ring-inner">
+                            <span id="healthValue">100</span>
+                            <small>HEALTH</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-footer">
+                    <div>
+                        <span>Nodes</span>
+                        <strong>02</strong>
+                    </div>
+                    <div>
+                        <span>Connections</span>
+                        <strong>01</strong>
+                    </div>
+                    <div>
+                        <span>AI Status</span>
+                        <strong class="green">ACTIVE</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LATENCY -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>LATENCY</span>
+                    <div class="metric-icon">↔</div>
+                </div>
+
+                <div class="metric-value">
+                    <strong id="latencyDisplay">
+                        {{ metrics.latency if metrics else 20 }}
+                    </strong>
+                    <span>ms</span>
+                </div>
+
+                <div class="metric-bar">
+                    <span id="latencyBar"></span>
+                </div>
+                <small>Network response time</small>
+            </div>
+
+            <!-- PACKET LOSS -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>PACKET LOSS</span>
+                    <div class="metric-icon">⌁</div>
+                </div>
+
+                <div class="metric-value">
+                    <strong id="packetDisplay">
+                        {{ metrics.packet_loss if metrics else 0 }}
+                    </strong>
+                    <span>%</span>
+                </div>
+
+                <div class="metric-bar">
+                    <span id="packetBar"></span>
+                </div>
+                <small>Packets dropped</small>
+            </div>
+
+            <!-- BANDWIDTH -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span>BANDWIDTH</span>
+                    <div class="metric-icon">⇅</div>
+                </div>
+
+                <div class="metric-value">
+                    <strong id="bandwidthDisplay">40</strong>
+                    <span>%</span>
+                </div>
+
+                <div class="metric-bar">
+                    <span id="bandwidthBar"></span>
+                </div>
+                <small>Demo utilization value</small>
+            </div>
+
+        </section>
+
+        <!-- DASHBOARD PANELS -->
+        <section class="dashboard-grid">
+
+            <!-- AI DIAGNOSTICS -->
+            <div class="panel ai-panel" id="diagnostics">
+
+                <div class="panel-header">
+                    <div>
+                        <span class="label">MACHINE LEARNING ENGINE</span>
+                        <h3>AI Fault Diagnosis</h3>
+                    </div>
+
+                    <div class="ai-badge">RANDOM FOREST</div>
+                </div>
+
+                <!-- PCAP ANALYSIS BUTTON -->
+                <div style="margin-bottom:20px;">
+                    <a href="{{ url_for('analyze_pcap_route') }}"
+                       class="detect-btn"
+                       style="display:block;text-align:center;text-decoration:none;">
+                        ANALYZE CAPTURED PCAP →
+                    </a>
+                </div>
+
+                <!-- PCAP RESULTS -->
+                {% if metrics %}
+                <div class="ai-result">
+                    <div class="result-header">
+                        <span class="label">PCAP ANALYSIS RESULTS</span>
+                        <span class="prediction-time">ANALYSIS COMPLETE</span>
+                    </div>
+
+                    <div class="prediction">
+                        <div>
+                            <small>LATENCY</small>
+                            <h2>{{ metrics.latency }} ms</h2>
+                        </div>
+
+                        <div>
+                            <small>PACKET LOSS</small>
+                            <h2>{{ metrics.packet_loss }} %</h2>
+                        </div>
+
+                        <div>
+                            <small>JITTER</small>
+                            <h2>{{ metrics.jitter }} ms</h2>
+                        </div>
+                    </div>
+
+                    <div class="recommendation">
+                        <div class="recommendation-icon">✓</div>
+                        <div>
+                            <span>PACKET STATISTICS</span>
+                            <p>
+                                Packets sent: {{ metrics.packets_sent }}
+                                &nbsp; | &nbsp;
+                                Packets received: {{ metrics.packets_received }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- MANUAL DIAGNOSIS FORM -->
+                <form method="POST"
+      action="{{ url_for('predict') }}#diagnostics"
+      id="diagnosticForm">
+
+                    <div class="input-grid">
+
+                        <div class="input-box">
+                            <label for="latency">Latency</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       name="latency"
+                                       id="latency"
+                                       value="{{ metrics.latency if metrics else 20 }}"
+                                       required>
+                                <span>ms</span>
+                            </div>
+                        </div>
+
+                        <div class="input-box">
+                            <label for="packet_loss">Packet Loss</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       name="packet_loss"
+                                       id="packet_loss"
+                                       value="{{ metrics.packet_loss if metrics else 0 }}"
+                                       required>
+                                <span>%</span>
+                            </div>
+                        </div>
+
+                        <div class="input-box">
+                            <label for="jitter">Jitter</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       name="jitter"
+                                       id="jitter"
+                                       value="{{ metrics.jitter if metrics else 3 }}"
+                                       required>
+                                <span>ms</span>
+                            </div>
+                        </div>
+
+                        <div class="input-box">
+                            <label for="bandwidth">Bandwidth</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       name="bandwidth"
+                                       id="bandwidth"
+                                       value="40"
+                                       required>
+                                <span>%</span>
+                            </div>
+                        </div>
+
+                        <div class="input-box">
+                            <label for="cpu">CPU Usage</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       name="cpu"
+                                       id="cpu"
+                                       value="40"
+                                       required>
+                                <span>%</span>
+                            </div>
+                        </div>
+
+                        <div class="input-box">
+                            <label for="memory">Memory Usage</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       name="memory"
+                                       id="memory"
+                                       value="45"
+                                       required>
+                                <span>%</span>
+                            </div>
+                        </div>
+
+                        <div class="input-box">
+                            <label for="error_rate">Error Rate</label>
+                            <div class="input-wrapper">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       name="error_rate"
+                                       id="error_rate"
+                                       value="0"
+                                       required>
+                                <span>%</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button class="detect-btn" type="submit">
+                        RUN AI DIAGNOSTICS →
+                    </button>
+                </form>
+
+                <!-- AI PREDICTION AND RECOMMENDATION -->
+                {% if result %}
+                <div class="ai-result">
+
+                    <div class="result-header">
+                        <span class="label">AI PREDICTION</span>
+                        <span class="prediction-time">ANALYSIS COMPLETE</span>
+                    </div>
+
+                    <div class="prediction">
+                        <div>
+                            <small>DETECTED FAULT</small>
+                            <h2>{{ result.fault }}</h2>
+                        </div>
+
+                        <div class="confidence">
+                            <div class="confidence-circle">
+                                <span>{{ result.confidence }}%</span>
+                            </div>
+                            <small>CONFIDENCE</small>
+                        </div>
+                    </div>
+
+                    <div class="recommendation">
+                        <div class="recommendation-icon">✦</div>
+                        <div>
+                            <span>INTELLIGENT RECOMMENDATION</span>
+
+                            {% if result.recommendation is mapping %}
+                                <h3>Possible Cause</h3>
+                                <p>{{ result.recommendation.get('cause', 'No cause provided.') }}</p>
+
+                                <h3>Recommended Troubleshooting</h3>
+                                <p>{{ result.recommendation.get('solution', 'No solution provided.') }}</p>
+                            {% else %}
+                                <p>{{ result.recommendation }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- FAULT SIMULATOR -->
+            <div class="panel simulation-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <span class="label">DEMO CONTROL</span>
+                        <h3>Fault Simulator</h3>
+                    </div>
+                    <span class="simulation-status">READY</span>
+                </div>
+
+                <p class="panel-description">
+                    Simulate network conditions to test the AI diagnostic engine.
+                </p>
+
+                <div class="scenario-list">
+
+                    <button type="button" onclick="simulate('normal')">
+                        <span class="scenario-icon normal">✓</span>
+                        <div>
+                            <strong>Normal Network</strong>
+                            <small>Healthy conditions</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button type="button" onclick="simulate('congestion')">
+                        <span class="scenario-icon warning">≈</span>
+                        <div>
+                            <strong>Network Congestion</strong>
+                            <small>High traffic conditions</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button type="button" onclick="simulate('link')">
+                        <span class="scenario-icon danger">×</span>
+                        <div>
+                            <strong>Link Failure</strong>
+                            <small>Packet loss / errors</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button type="button" onclick="simulate('overload')">
+                        <span class="scenario-icon danger">!</span>
+                        <div>
+                            <strong>Device Overload</strong>
+                            <small>High CPU / memory</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button type="button" onclick="simulate('routing')">
+                        <span class="scenario-icon warning">⌁</span>
+                        <div>
+                            <strong>Routing Issue</strong>
+                            <small>Abnormal network path</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="analytics-grid" id="analytics">
+
+            <div class="panel chart-panel">
+                <div class="panel-header">
+                    <div>
+                        <span class="label">NETWORK ANALYTICS</span>
+                        <h3>Performance Trends</h3>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="networkChart"></canvas>
+                </div>
+                <small>
+                    Illustrative trend data; not historical PCAP measurements.
+                </small>
+            </div>
+
+            <!-- EVENT LOG -->
+            <div class="panel events-panel" id="events">
+                <div class="panel-header">
+                    <div>
+                        <span class="label">SYSTEM ACTIVITY</span>
+                        <h3>Event Log</h3>
+                    </div>
+                    <span class="event-count">STATUS</span>
+                </div>
+
+                <div class="event-list" id="eventList">
+
+                    <div class="event">
+                        <div class="event-dot green"></div>
+                        <div>
+                            <strong>Dashboard initialized</strong>
+                            <small>NetGuard AI interface loaded</small>
+                        </div>
+                        <time>READY</time>
+                    </div>
+
+                    <div class="event">
+                        <div class="event-dot green"></div>
+                        <div>
+                            <strong>AI engine</strong>
+                            <small>Random Forest model configured</small>
+                        </div>
+                        <time>READY</time>
+                    </div>
+
+                    {% if metrics %}
+                    <div class="event">
+                        <div class="event-dot green"></div>
+                        <div>
+                            <strong>PCAP analyzed</strong>
+                            <small>Network metrics extracted</small>
+                        </div>
+                        <time>DONE</time>
+                    </div>
+                    {% endif %}
+
+                    {% if result %}
+                    <div class="event">
+                        <div class="event-dot green"></div>
+                        <div>
+                            <strong>AI diagnosis completed</strong>
+                            <small>Fault: {{ result.fault }}</small>
+                        </div>
+                        <time>DONE</time>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer>
+            <span>NETGUARD AI • INTELLIGENT NETWORK FAULT DETECTION</span>
+            <span>GNS3 • WIRESHARK • PYTHON • MACHINE LEARNING</span>
+        </footer>
+
+    </main>
+</div>
+
+<script>
+    // CLOCK
+    function updateClock() {
+        const clock = document.getElementById("clock");
+        if (clock) {
+            clock.textContent = new Date().toLocaleTimeString();
+        }
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+
+    // METRIC DISPLAY
+    // Read the current input values but do not replace real PCAP metrics
+    // with the old default values when the page loads.
+    function updateMetrics() {
+        const latency = Number(document.getElementById("latency")?.value) || 0;
+        const packetLoss = Number(document.getElementById("packet_loss")?.value) || 0;
+        const bandwidth = Number(document.getElementById("bandwidth")?.value) || 0;
+
+        const latencyDisplay = document.getElementById("latencyDisplay");
+        const packetDisplay = document.getElementById("packetDisplay");
+        const bandwidthDisplay = document.getElementById("bandwidthDisplay");
+
+        if (latencyDisplay) latencyDisplay.textContent = latency;
+        if (packetDisplay) packetDisplay.textContent = packetLoss;
+        if (bandwidthDisplay) bandwidthDisplay.textContent = bandwidth;
+
+        const latencyBar = document.getElementById("latencyBar");
+        const packetBar = document.getElementById("packetBar");
+        const bandwidthBar = document.getElementById("bandwidthBar");
+
+        if (latencyBar) {
+            latencyBar.style.width = Math.min(latency / 2, 100) + "%";
+        }
+
+        if (packetBar) {
+            packetBar.style.width = Math.min(packetLoss * 4, 100) + "%";
+        }
+
+        if (bandwidthBar) {
+            bandwidthBar.style.width = Math.min(bandwidth, 100) + "%";
+        }
+
+        let health = 100;
+        health -= Math.min(latency / 4, 25);
+        health -= Math.min(packetLoss * 2, 25);
+        health -= Math.max(0, bandwidth - 70) / 2;
+        health = Math.max(0, Math.round(health));
+
+        const healthValue = document.getElementById("healthValue");
+        const networkState = document.getElementById("networkState");
+
+        if (healthValue) healthValue.textContent = health;
+
+        if (networkState) {
+            if (health >= 80) {
+                networkState.textContent = "HEALTHY";
+            } else if (health >= 50) {
+                networkState.textContent = "DEGRADED";
+            } else {
+                networkState.textContent = "CRITICAL";
+            }
+        }
+    }
+
+    // Update overview values when a user manually changes inputs.
+    // Do not call updateMetrics() automatically on page load:
+    // the server-rendered PCAP values should remain visible.
+    document.querySelectorAll("#diagnosticForm input").forEach(function(input) {
+        input.addEventListener("input", updateMetrics);
+    });
+
+
+    // FAULT SIMULATOR
+    const scenarios = {
+        normal: {
+            latency: 20,
+            packet_loss: 0,
+            jitter: 3,
+            bandwidth: 40,
+            cpu: 40,
+            memory: 45,
+            error_rate: 0
+        },
+
+        congestion: {
+            latency: 150,
+            packet_loss: 20,
+            jitter: 35,
+            bandwidth: 95,
+            cpu: 60,
+            memory: 65,
+            error_rate: 7
+        },
+
+        link: {
+            latency: 180,
+            packet_loss: 30,
+            jitter: 50,
+            bandwidth: 90,
+            cpu: 65,
+            memory: 70,
+            error_rate: 12
+        },
+
+        overload: {
+            latency: 80,
+            packet_loss: 5,
+            jitter: 15,
+            bandwidth: 50,
+            cpu: 98,
+            memory: 95,
+            error_rate: 3
+        },
+
+        routing: {
+            latency: 140,
+            packet_loss: 10,
+            jitter: 35,
+            bandwidth: 70,
+            cpu: 55,
+            memory: 50,
+            error_rate: 8
+        }
+    };
+
+    function simulate(type) {
+        const data = scenarios[type];
+        if (!data) return;
+
+        Object.keys(data).forEach(function(key) {
+            const element = document.getElementById(key);
+            if (element) element.value = data[key];
+        });
+
+        updateMetrics();
+
+        const form = document.getElementById("diagnosticForm");
+        if (form) form.requestSubmit();
+    }
+
+
+    // PERFORMANCE CHART
+   
+// REAL-TIME PERFORMANCE CHART
+let networkChart = null;
+const MAX_CHART_POINTS = 20;
+
+const chartCanvas = document.getElementById("networkChart");
+
+if (chartCanvas && typeof Chart !== "undefined") {
+    networkChart = new Chart(chartCanvas.getContext("2d"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: "Latency (ms)",
+                    data: [],
+                    yAxisID: "y",
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    fill: false
+                },
+                {
+                    label: "Packet Loss (%)",
+                    data: [],
+                    yAxisID: "y1",
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+            plugins: {
+                legend: { display: true }
+            },
+            scales: {
+                x: {
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    position: "left",
+                    title: {
+                        display: true,
+                        text: "Latency (ms)"
+                    }
+                },
+                y1: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 100,
+                    position: "right",
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    title: {
+                        display: true,
+                        text: "Packet Loss (%)"
+                    }
+                }
+            }
+        }
+    });
+}
+
+    // ======================================
+// NETGUARD AI LIVE MONITORING
+// ======================================
+
+let liveMonitoringTimer = null;
+let liveRequestInProgress = false;
+
+async function fetchLiveMetrics() {
+
+    // Prevent overlapping API requests
+    if (liveRequestInProgress) return;
+
+    liveRequestInProgress = true;
+
+    const status = document.getElementById("liveStatus");
+
+    try {
+
+        const response = await fetch("/api/live");
+
+        if (!response.ok) {
+            throw new Error("Live API request failed");
+        }
+
+        const data = await response.json();
+
+        if (data.status !== "Connected") {
+            throw new Error(data.error || "GNS3 connection unavailable");
+        }
+
+        // Update connection status
+        status.textContent = "CONNECTED";
+        status.style.color = "#22c55e";
+
+        // Update latency card
+        document.getElementById("latencyDisplay").textContent =
+            data.latency.toFixed(3);
+
+        document.getElementById("latencyBar").style.width =
+            Math.min(data.latency / 2, 100) + "%";
+
+        // Packet loss is not yet measured by this monitor
+        document.getElementById("packetDisplay").textContent =
+            data.packet_loss === null ? "--" : data.packet_loss;
+
+        document.getElementById("packetBar").style.width =
+            data.packet_loss === null
+                ? "0%"
+                : Math.min(data.packet_loss * 4, 100) + "%";
+                
+// Update network state using live fault detection
+const networkState = document.getElementById("networkState");
+const healthValue = document.getElementById("healthValue");
+
+if (networkState && healthValue) {
+    if (data.fault === "Normal") {
+        networkState.textContent = "HEALTHY";
+        healthValue.textContent = "100";
+    } else if (data.fault === "High Latency" ||
+               data.fault === "Packet Loss") {
+        networkState.textContent = "DEGRADED";
+        healthValue.textContent = "60";
+    } else {
+        networkState.textContent = "CRITICAL";
+        healthValue.textContent = "20";
+    }
+}
+
+
+        // Update live monitoring panel
+        document.getElementById("liveJitter").textContent =
+            data.jitter.toFixed(3);
+
+        document.getElementById("liveReplies").textContent =
+            data.successful_replies;
+            
+// Update live fault classification
+const faultElement = document.getElementById("liveFault");
+const faultBox = document.getElementById("liveFaultBox");
+const recommendationElement =
+    document.getElementById("liveRecommendation");
+
+faultElement.textContent = data.fault || "Unknown";
+
+recommendationElement.textContent =
+    data.recommendation || "No recommendation available.";
+
+if (data.fault === "Normal") {
+    faultElement.style.color = "#22c55e";
+    faultBox.style.borderColor = "rgba(34,197,94,0.4)";
+    faultBox.style.background = "rgba(34,197,94,0.08)";
+}
+else {
+    faultElement.style.color = "#ef4444";
+    faultBox.style.borderColor = "rgba(239,68,68,0.4)";
+    faultBox.style.background = "rgba(239,68,68,0.08)";
+}
+
+
+       
+const readingTime = new Date().toLocaleTimeString();
+
+document.getElementById("liveUpdated").textContent = readingTime;
+
+if (networkChart) {
+
+    networkChart.data.labels.push(readingTime);
+
+    networkChart.data.datasets[0].data.push(data.latency);
+
+    networkChart.data.datasets[1].data.push(
+        data.packet_loss === null ? 0 : data.packet_loss
+    );
+
+    // Keep only the latest 20 readings
+    while (networkChart.data.labels.length > MAX_CHART_POINTS) {
+
+        networkChart.data.labels.shift();
+
+        networkChart.data.datasets.forEach(function(dataset) {
+            dataset.data.shift();
+        });
+    }
+
+    networkChart.update("none");
+}
+
+
+    } catch (error) {
+
+        status.textContent = "DISCONNECTED";
+        status.style.color = "#ef4444";
+
+        console.error("Live monitoring error:", error);
+
+    } finally {
+
+        liveRequestInProgress = false;
+
+    }
+}
+
+
+// START LIVE MONITORING
+function startLiveMonitoring() {
+
+    if (liveMonitoringTimer !== null) return;
+
+    document.getElementById("liveStatus").textContent =
+        "CONNECTING...";
+
+    document.getElementById("liveStatus").style.color =
+        "#d69e36";
+
+    fetchLiveMetrics();
+
+    // Each API request takes approximately 5 seconds.
+    // Poll every 7 seconds to avoid overlapping requests.
+    liveMonitoringTimer = setInterval(
+        fetchLiveMetrics,
+        7000
+    );
+}
+
+
+// STOP LIVE MONITORING
+function stopLiveMonitoring() {
+
+    if (liveMonitoringTimer !== null) {
+
+        clearInterval(liveMonitoringTimer);
+
+        liveMonitoringTimer = null;
+
+    }
+
+    document.getElementById("liveStatus").textContent =
+        "STOPPED";
+
+    document.getElementById("liveStatus").style.color =
+        "#d69e36";
+}
+</script>
+
+</body>
+</html>

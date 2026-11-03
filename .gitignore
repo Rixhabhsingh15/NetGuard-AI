@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+.env
+.env.*
+.vscode/
+.idea/
+*.log
+.ipynb_checkpoints/
+captures/
+*.pcap
+*.pcapng
